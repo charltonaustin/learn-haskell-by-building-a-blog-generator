@@ -1,6 +1,10 @@
-module Main (main) where
-
-import Lib
+import Html
 
 main :: IO ()
-main = someFunc
+main = putStrLn (render myhtml)
+
+myhtml :: Html
+myhtml =
+  html_
+    "Hello title"
+    (append_ (h1_ "Hello, world!") (p_ "Let's learn about Haskell!"))
