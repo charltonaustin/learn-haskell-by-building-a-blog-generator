@@ -22,10 +22,10 @@ h1_ :: String -> Structure
 h1_ = Structure . el "h1" . escape
 
 ul_ :: [Structure] -> Structure
-ul_ = Structure . el "ul" . unwords . map getStructureString
+ul_ = Structure . el "ul" . unwords . map (el "li" . getStructureString)
 
 ol_ :: [Structure] -> Structure
-ol_ = Structure . el "ol" . unwords . map getStructureString
+ol_ = Structure . el "ol" . unwords . map (el "li" . getStructureString)
 
 code_ :: String -> Structure
 code_ = Structure . el "pre" . escape
