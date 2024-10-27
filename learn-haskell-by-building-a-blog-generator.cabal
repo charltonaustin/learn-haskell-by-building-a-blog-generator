@@ -27,6 +27,7 @@ library
   exposed-modules:
       Html
       Html.Internal
+      Markup
   other-modules:
       Paths_learn_haskell_by_building_a_blog_generator
   autogen-modules:
