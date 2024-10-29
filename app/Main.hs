@@ -7,4 +7,4 @@ myhtml :: Html
 myhtml =
   html_
     "Hello title"
-    (append_ (h1_ "Hello, world!") (p_ "Let's learn about Haskell!"))
+    (h1_ "Hello, world!" <> p_ "Let's learn about Haskell!")
