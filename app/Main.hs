@@ -1,21 +1,27 @@
 import Html
+import Html.Internal (createStructure)
 import Markup (parse, renderMarkup)
 
 main :: IO ()
 main = do
   putStrLn (render myhtml)
-  putStrLn (renderMarkup (parse file))
 
 myhtml :: Html
 myhtml =
   html_
     "Hello title"
-    (h1_ "Hello, world!" <> p_ "Let's learn about Haskell!")
+    (createStructure (renderMarkup (parse file)))
 
 file :: String
 file =
   unlines
-    [ "first paragraph",
-      "",
-      "second paragraph"
+    [ "* Title"
+    , "first paragraph"
+    ,  ""
+    ,  "second paragraph"
+    ,  "- ul one"
+    ,  "- ul two"
+    ,  "# ol 1"
+    ,  "# ol 2"
+    ,  "> code block"
     ]

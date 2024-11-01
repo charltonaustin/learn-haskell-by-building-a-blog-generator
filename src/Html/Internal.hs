@@ -30,6 +30,9 @@ ol_ = Structure . el "ol" . unwords . map (el "li" . getStructureString)
 code_ :: String -> Structure
 code_ = Structure . el "pre" . escape
 
+createStructure :: String -> Structure
+createStructure s = Structure s
+
 instance Semigroup Structure where
   (<>) c1 c2 =
     Structure (getStructureString c1 <> getStructureString c2)
