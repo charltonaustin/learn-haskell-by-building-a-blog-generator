@@ -3,8 +3,8 @@ import Markup (parse, renderMarkup)
 
 main :: IO ()
 main = do
-    putStrLn (render myhtml)
-    putStrLn (renderMarkup (parse file))
+  putStrLn (render myhtml)
+  putStrLn (renderMarkup (parse file))
 
 myhtml :: Html
 myhtml =
