@@ -16,6 +16,7 @@ file :: String
 file =
   unlines
     [ "* Title"
+    , "** Subtitle "
     , "first paragraph"
     ,  ""
     ,  "second paragraph"

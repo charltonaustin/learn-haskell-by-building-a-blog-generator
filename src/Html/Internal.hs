@@ -1,6 +1,7 @@
 module Html.Internal where
 
 import Data.List (intercalate)
+import Numeric.Natural
 
 -- * Types
 
@@ -18,8 +19,8 @@ html_ title (Structure content) = Html (el "html" (el "head" (el "title" (escape
 p_ :: String -> Structure
 p_ = Structure . el "p" . escape
 
-h1_ :: String -> Structure
-h1_ = Structure . el "h1" . escape
+h_ :: Natural -> String -> Structure
+h_ n = Structure . el ("h" <> show n) . escape
 
 ul_ :: [Structure] -> Structure
 ul_ = Structure . el "ul" . unwords . map (el "li" . getStructureString)
@@ -31,7 +32,7 @@ code_ :: String -> Structure
 code_ = Structure . el "pre" . escape
 
 createStructure :: String -> Structure
-createStructure s = Structure s
+createStructure = Structure
 
 instance Semigroup Structure where
   (<>) c1 c2 =
