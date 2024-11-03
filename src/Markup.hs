@@ -2,13 +2,10 @@ module Markup
   ( Document,
     Markup.Structure (..),
     parse,
-    renderMarkup,
   )
 where
 
 import Data.Maybe
-import Html (code_, h_, ol_, p_, ul_)
-import Html.Internal (createStructure, getStructureString)
 import Numeric.Natural
 
 type Document = [Markup.Structure]
@@ -20,18 +17,6 @@ data Structure
   | OrderedList [String]
   | CodeBlock [String]
   deriving (Show)
-
-renderMarkup :: Document -> String
-renderMarkup document =
-  case document of
-    [] -> ""
-    d : rest ->
-      case d of
-        Heading n s -> getStructureString (h_ n s) <> renderMarkup rest
-        Paragraph s -> getStructureString (p_ s) <> renderMarkup rest
-        UnorderedList xs -> getStructureString (ul_ (map createStructure xs)) <> renderMarkup rest
-        OrderedList xs -> getStructureString (ol_ (map createStructure xs)) <> renderMarkup rest
-        CodeBlock xs -> (concatMap getStructureString (map code_ xs)) <> renderMarkup rest
 
 parse :: String -> Document
 parse = parseLines Nothing . lines

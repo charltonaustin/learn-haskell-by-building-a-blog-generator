@@ -1,5 +1,5 @@
 .stack-work/
 *~
 .idea
-dist
 dist*
+data
