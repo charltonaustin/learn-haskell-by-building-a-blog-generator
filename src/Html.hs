@@ -9,6 +9,7 @@ module Html
   , ol_
   , code_
   , render
+  , empty_
   )
   where
 

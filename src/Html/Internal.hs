@@ -1,6 +1,5 @@
 module Html.Internal where
 
-import Data.List (intercalate)
 import Numeric.Natural
 
 -- * Types
@@ -31,12 +30,24 @@ ol_ = Structure . el "ol" . unwords . map (el "li" . getStructureString)
 code_ :: String -> Structure
 code_ = Structure . el "pre" . escape
 
+empty_ :: Structure
+empty_ = Structure ""
+
 createStructure :: String -> Structure
 createStructure = Structure
+
+concatStructure :: [Structure] -> Structure
+concatStructure list =
+    case list of
+        [] -> empty_
+        x:xs -> x <> concatStructure xs
 
 instance Semigroup Structure where
   (<>) c1 c2 =
     Structure (getStructureString c1 <> getStructureString c2)
+
+instance Monoid Structure where
+  mempty = Structure ""
 
 -- * Render
 

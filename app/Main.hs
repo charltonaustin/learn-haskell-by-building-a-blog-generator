@@ -15,14 +15,14 @@ myhtml =
 file :: String
 file =
   unlines
-    [ "* Title"
-    , "** Subtitle "
-    , "first paragraph"
-    ,  ""
-    ,  "second paragraph"
-    ,  "- ul one"
-    ,  "- ul two"
-    ,  "# ol 1"
-    ,  "# ol 2"
-    ,  "> code block"
+    [ "* Title",
+      "** Subtitle ",
+      "first paragraph",
+      "",
+      "second paragraph",
+      "- ul one",
+      "- ul two",
+      "# ol 1",
+      "# ol 2",
+      "> code block"
     ]

@@ -7,7 +7,7 @@ module Markup
 where
 
 import Data.Maybe
-import Html (Structure, code_, h_, ol_, p_, render, ul_)
+import Html (code_, h_, ol_, p_, ul_)
 import Html.Internal (createStructure, getStructureString)
 import Numeric.Natural
 
@@ -22,8 +22,8 @@ data Structure
   deriving (Show)
 
 renderMarkup :: Document -> String
-renderMarkup s =
-  case s of
+renderMarkup document =
+  case document of
     [] -> ""
     d : rest ->
       case d of
