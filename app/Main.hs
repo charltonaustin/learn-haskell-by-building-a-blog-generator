@@ -10,6 +10,7 @@ import qualified Html
 import qualified Markup
 import System.Directory (doesFileExist)
 import System.Environment (getArgs)
+import Options.Applicative
 
 main :: IO ()
 main =
@@ -46,3 +47,62 @@ whenIO :: IO Bool -> IO () -> IO ()
 whenIO cond action = do
   result <- cond
   when result action
+
+data Options
+  = ConvertSingle SingleInput SingleOutput
+  | ConvertDir FilePath FilePath
+  deriving Show
+
+data SingleInput
+  = Stdin
+  | InputFile FilePath
+  deriving Show
+
+data SingleOutput
+  = Stdout
+  | OutputFile FilePath
+  deriving Show
+
+
+pInputFile :: Parser SingleInput
+pInputFile = fmap InputFile parser
+  where
+    parser =
+      strOption
+        ( long "input"
+          <> short 'i'
+          <> metavar "FILE"
+          <> help "Input file"
+        )
+
+pOutputFile :: Parser SingleOutput
+pOutputFile = OutputFile <$> parser -- fmap and <$> are the same
+  where
+    parser =
+      strOption
+        ( long "output"
+          <> short 'o'
+          <> metavar "FILE"
+          <> help "Output file"
+        )
+
+pInputDir :: Parser FilePath
+pInputDir =
+  strOption
+    ( long "input"
+      <> short 'i'
+      <> metavar "DIRECTORY"
+      <> help "Input directory"
+    )
+
+pOutputDir :: Parser FilePath
+pOutputDir =
+  strOption
+    ( long "output"
+      <> short 'o'
+      <> metavar "DIRECTORY"
+      <> help "Output directory"
+    )
+
+pConvertDir :: Parser Options
+pConvertDir = ConvertDir <$> pInputDir <*> pOutputDir
