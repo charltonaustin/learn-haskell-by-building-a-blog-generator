@@ -11,6 +11,7 @@ import qualified Markup
 import System.Directory (doesFileExist)
 import System.Environment (getArgs)
 import Options.Applicative
+import Data.Maybe (fromMaybe)
 
 main :: IO ()
 main =
@@ -106,3 +107,42 @@ pOutputDir =
 
 pConvertDir :: Parser Options
 pConvertDir = ConvertDir <$> pInputDir <*> pOutputDir
+
+pSingleInput :: Parser SingleInput
+pSingleInput =
+  fromMaybe Stdin <$> optional pInputFile
+
+pSingleOutput :: Parser SingleOutput
+pSingleOutput =
+  fromMaybe Stdout <$> optional pOutputFile
+
+pConvertSingle :: Parser Options
+pConvertSingle =
+  ConvertSingle <$> pSingleInput <*> pSingleOutput
+
+pConvertSingleInfo :: ParserInfo Options
+pConvertSingleInfo =
+  info
+    (helper <*> pConvertSingle)
+    (progDesc "Convert a single markup source to html")
+
+pConvertSingleCommand :: Mod CommandFields Options
+pConvertSingleCommand =
+  command "convert" pConvertSingleInfo
+
+pOptions :: Parser Options
+pOptions =
+  subparser
+    ( command
+      "convert"
+      ( info
+        (helper <*> pConvertSingle)
+        (progDesc "Convert a single markup source to html")
+      )
+      <> command
+      "convert-dir"
+      ( info
+        (helper <*> pConvertDir)
+        (progDesc "Convert a directory of markup files to html")
+      )
+    )
