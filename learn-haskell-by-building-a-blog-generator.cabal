@@ -29,6 +29,7 @@ library
       Html
       Html.Internal
       Markup
+      OptParse
   other-modules:
       Paths_learn_haskell_by_building_a_blog_generator
   autogen-modules:
