@@ -14,10 +14,10 @@ main :: IO ()
 main = do
   options <- parse
   case options of
-    ConvertDir input output ->
+    ConvertDir input output replace ->
       HsBlog.convertDirectory input output
 
-    ConvertSingle input output -> do
+    ConvertSingle input output replace -> do
       (title, inputHandle) <-
         case input of
           Stdin ->
@@ -31,7 +31,7 @@ main = do
           OutputFile file -> do
             exists <- doesFileExist file
             shouldOpenFile <-
-              if exists
+              if exists && not replace
                 then confirm
                 else pure True
             if shouldOpenFile

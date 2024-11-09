@@ -10,8 +10,8 @@ import Data.Maybe (fromMaybe)
 import Options.Applicative
 
 data Options
-  = ConvertSingle SingleInput SingleOutput
-  | ConvertDir FilePath FilePath
+  = ConvertSingle SingleInput SingleOutput Bool
+  | ConvertDir FilePath FilePath Bool
   deriving Show
 
 data SingleInput
@@ -23,7 +23,6 @@ data SingleOutput
   = Stdout
   | OutputFile FilePath
   deriving Show
-
 
 pInputFile :: Parser SingleInput
 pInputFile = fmap InputFile parser
@@ -65,8 +64,17 @@ pOutputDir =
       <> help "Output directory"
     )
 
+
+pReplace :: Parser Bool
+pReplace =
+  switch
+    ( long "replace"
+      <> short 'r'
+      <> help "Set to automatically replace a directory or file"
+    )
+
 pConvertDir :: Parser Options
-pConvertDir = ConvertDir <$> pInputDir <*> pOutputDir
+pConvertDir = ConvertDir <$> pInputDir <*> pOutputDir <*> pReplace
 
 pSingleInput :: Parser SingleInput
 pSingleInput =
@@ -78,7 +86,7 @@ pSingleOutput =
 
 pConvertSingle :: Parser Options
 pConvertSingle =
-  ConvertSingle <$> pSingleInput <*> pSingleOutput
+  ConvertSingle <$> pSingleInput <*> pSingleOutput <*> pReplace
 
 pOptions :: Parser Options
 pOptions =
