@@ -1,35 +1,48 @@
--- Main.hs
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
 {-# HLINT ignore "Use lambda-case" #-}
 module Main where
 
-import Control.Monad (when)
-import Convert (convert)
-import qualified Html
-import qualified Markup
+import OptParse
+import qualified HsBlog
+
+import System.Exit (exitFailure)
 import System.Directory (doesFileExist)
-import System.Environment (getArgs)
+import System.IO
 
 main :: IO ()
-main =
-  getArgs >>= \args ->
-    case args of
-      [] -> do
-        content <- getContents
-        putStrLn (process "Empty title" content)
-      [input, output] -> do
-        content <- readFile input
-        exists <- doesFileExist output
-        let writeResult = writeFile output (process input content)
-         in if exists
-              then whenIO confirm writeResult
-              else writeResult
-      _ ->
-        putStrLn "Usage: learn-haskell-by-building-a-blog-generator-exe <input-file> <output-file>"
+main = do
+  options <- parse
+  case options of
+    ConvertDir input output ->
+      HsBlog.convertDirectory input output
 
-process :: Html.Title -> String -> String
-process title = Html.render . convert title . Markup.parse
+    ConvertSingle input output -> do
+      (title, inputHandle) <-
+        case input of
+          Stdin ->
+            pure ("", stdin)
+          InputFile file ->
+            (,) file <$> openFile file ReadMode
+
+      outputHandle <-
+        case output of
+          Stdout -> pure stdout
+          OutputFile file -> do
+            exists <- doesFileExist file
+            shouldOpenFile <-
+              if exists
+                then confirm
+                else pure True
+            if shouldOpenFile
+              then
+                openFile file WriteMode
+              else
+                exitFailure
+
+      HsBlog.convertSingle title inputHandle outputHandle
+      hClose inputHandle
+      hClose outputHandle
 
 confirm :: IO Bool
 confirm = do
@@ -41,8 +54,3 @@ confirm = do
     _ -> do
       putStrLn "Invalid response. use y or n"
       confirm
-
-whenIO :: IO Bool -> IO () -> IO ()
-whenIO cond action = do
-  result <- cond
-  when result action

@@ -26,6 +26,7 @@ source-repository head
 library
   exposed-modules:
       Convert
+      HsBlog
       Html
       Html.Internal
       Markup
