@@ -29,6 +29,7 @@ import System.Directory
   , doesDirectoryExist
   , copyFile
   )
+import Options.Applicative (value)
 
 previews :: (FilePath, Markup.Document) -> Html.Structure
 previews (path, doc) =
@@ -47,4 +48,59 @@ buildIndex xs =
    (Html.h_ 1 (Html.link_ "index.html" (Html.txt_ "Blog")) <> Html.h_ 2 (Html.txt_ "Posts") <> foldMap previews xs)
 
 convertDirectory :: FilePath -> FilePath -> IO ()
-convertDirectory = error "Not implemented"
+convertDirectory = error "Not Implemented"
+
+-- convertDirectory inputDir outputDir = do
+--  DirContents filesToProcess filesToCopy <- getDirFilesAndContent inputDir
+--  createOutputDirectoryOrExit outputDir
+-- let
+--    outputHtmls = txtsToRenderedHtml filesToProcess
+--  copyFiles outputDir filesToCopy
+--  writeFiles outputDir outputHtmls
+--  putStrLn "Done."
+
+data DirContents
+  = DirContents
+    { dcFilesToProcess :: [(FilePath, String)]
+      -- ^ File paths and their content
+    , dcFilesToCopy :: [FilePath]
+      -- ^ Other file paths, to be copied directly
+    }
+
+-- | Returns the directory content
+getDirFilesAndContent :: FilePath -> IO DirContents
+getDirFilesAndContent = error "Not Implemented"
+-- getDirFilesAndContent inputDir = do
+--   files <- map (inputDir </>) <$> listDirectory inputDir
+--   let
+--     (txtFiles, otherFiles) =
+--       partition ((== ".txt") . takeExtension) files
+--   txtFilesAndContent <-
+--     applyIoOnList readFile txtFiles >>= filterAndReportFailures
+--   pure $ DirContents
+--     { dcFilesToProcess = txtFilesAndContent
+--     , dcFilesToCopy = otherFiles
+--     }
+
+
+applyIoOnList :: (a -> IO b) -> [a] -> IO [(a, Either String b)]
+applyIoOnList action inputs = do
+  for inputs $ \input -> do
+    maybeResult <-
+      catch
+        (Right <$> action input)
+        ( \(SomeException e) -> do
+          pure $ Left (displayException e)
+        )
+    pure (input, maybeResult)
+
+
+filterAndReportFailures :: [(a, Either String b)] -> IO [(a, b)]
+filterAndReportFailures =
+  foldMap $ \(file, contentOrErr) ->
+    case contentOrErr of
+      Left err -> do
+        hPutStrLn stderr err
+        pure []
+      Right content ->
+        pure [(file, content)]
