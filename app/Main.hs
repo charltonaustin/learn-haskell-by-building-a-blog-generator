@@ -5,6 +5,7 @@ module Main where
 
 import OptParse
 import qualified HsBlog
+import qualified Directory
 
 import System.Exit (exitFailure)
 import System.Directory (doesFileExist)
@@ -15,7 +16,7 @@ main = do
   options <- parse
   case options of
     ConvertDir input output replace ->
-      HsBlog.convertDirectory input output
+      Directory.convertDirectory input output
 
     ConvertSingle input output replace -> do
       (title, inputHandle) <-
