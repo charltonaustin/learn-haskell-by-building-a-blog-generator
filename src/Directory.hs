@@ -104,3 +104,44 @@ filterAndReportFailures =
         pure []
       Right content ->
         pure [(file, content)]
+
+-- | Creates an output directory or terminates the program
+createOutputDirectoryOrExit :: FilePath -> IO ()
+createOutputDirectoryOrExit outputDir =
+  whenIO
+    (not <$> createOutputDirectory outputDir)
+    (hPutStrLn stderr "Cancelled." *> exitFailure)
+
+-- | Creates the output directory.
+--   Returns whether the directory was created or not.
+createOutputDirectory :: FilePath -> IO Bool
+createOutputDirectory dir = do
+  dirExists <- doesDirectoryExist dir
+  create <-
+    if dirExists
+      then do
+        override <- confirm "Output directory exists. Override?"
+        when override (removeDirectoryRecursive dir)
+        pure override
+      else
+        pure True
+  when create (createDirectory dir)
+  pure create
+
+confirm :: String -> IO Bool
+confirm question = do
+  putStrLn (question <> " (y/n)")
+  answer <- getLine
+  case answer of
+    "y" -> pure True
+    "n" -> pure False
+    _ -> do
+      putStrLn "Invalid response. Use y or n."
+      confirm question
+
+whenIO :: IO Bool -> IO () -> IO ()
+whenIO cond action = do
+  result <- cond
+  if result
+    then action
+    else pure ()
