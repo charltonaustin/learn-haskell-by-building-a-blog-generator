@@ -48,16 +48,14 @@ buildIndex xs =
    (Html.h_ 1 (Html.link_ "index.html" (Html.txt_ "Blog")) <> Html.h_ 2 (Html.txt_ "Posts") <> foldMap previews xs)
 
 convertDirectory :: FilePath -> FilePath -> IO ()
-convertDirectory = error "Not Implemented"
-
--- convertDirectory inputDir outputDir = do
---  DirContents filesToProcess filesToCopy <- getDirFilesAndContent inputDir
---  createOutputDirectoryOrExit outputDir
--- let
---    outputHtmls = txtsToRenderedHtml filesToProcess
---  copyFiles outputDir filesToCopy
---  writeFiles outputDir outputHtmls
---  putStrLn "Done."
+convertDirectory inputDir outputDir = do
+  DirContents filesToProcess filesToCopy <- getDirFilesAndContent inputDir
+  createOutputDirectoryOrExit outputDir
+  let
+    outputHtmls = txtsToRenderedHtml filesToProcess
+  copyFiles outputDir filesToCopy
+  writeFiles outputDir outputHtmls
+  putStrLn "Done."
 
 data DirContents
   = DirContents
@@ -69,18 +67,17 @@ data DirContents
 
 -- | Returns the directory content
 getDirFilesAndContent :: FilePath -> IO DirContents
-getDirFilesAndContent = error "Not Implemented"
--- getDirFilesAndContent inputDir = do
---   files <- map (inputDir </>) <$> listDirectory inputDir
---   let
---     (txtFiles, otherFiles) =
---       partition ((== ".txt") . takeExtension) files
---   txtFilesAndContent <-
---     applyIoOnList readFile txtFiles >>= filterAndReportFailures
---   pure $ DirContents
---     { dcFilesToProcess = txtFilesAndContent
---     , dcFilesToCopy = otherFiles
---     }
+getDirFilesAndContent inputDir = do
+  files <- map (inputDir </>) <$> listDirectory inputDir
+  let
+    (txtFiles, otherFiles) =
+      partition ((== ".txt") . takeExtension) files
+  txtFilesAndContent <-
+    applyIoOnList readFile txtFiles >>= filterAndReportFailures
+  pure $ DirContents
+    { dcFilesToProcess = txtFilesAndContent
+    , dcFilesToCopy = otherFiles
+    }
 
 
 applyIoOnList :: (a -> IO b) -> [a] -> IO [(a, Either String b)]
@@ -145,3 +142,34 @@ whenIO cond action = do
   if result
     then action
     else pure ()
+
+-- | Convert text files to Markup, build an index, and render as html.
+txtsToRenderedHtml :: [(FilePath, String)] -> [(FilePath, String)]
+txtsToRenderedHtml txtFiles =
+  let
+    txtOutputFiles = map toOutputMarkupFile txtFiles
+    index = ("index.html", buildIndex txtOutputFiles)
+  in
+    map (fmap Html.render) (index : map convertFile txtOutputFiles)
+
+toOutputMarkupFile :: (FilePath, String) -> (FilePath, Markup.Document)
+toOutputMarkupFile (file, content) =
+  (takeBaseName file <.> "html", Markup.parse content)
+
+convertFile :: (FilePath, Markup.Document) -> (FilePath, Html.Html)
+convertFile (file, doc) = (file, convert file doc)
+
+-- | Copy files to a directory, recording errors to stderr.
+copyFiles :: FilePath -> [FilePath] -> IO ()
+copyFiles outputDir files = do
+  let
+    copyFromTo file = copyFile file (outputDir </> takeFileName file)
+  void $ applyIoOnList copyFromTo files >>= filterAndReportFailures
+
+-- | Write files to a directory, recording errors to stderr.
+writeFiles :: FilePath -> [(FilePath, String)] -> IO ()
+writeFiles outputDir files = do
+  let
+    writeFileContent (file, content) =
+      writeFile (outputDir </> file) content
+  void $ applyIoOnList writeFileContent files >>= filterAndReportFailures
