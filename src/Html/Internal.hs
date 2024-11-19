@@ -1,6 +1,6 @@
 module Html.Internal where
 
-import Data.Maybe (fromMaybe, Maybe(Just))
+import Data.Maybe (Maybe (Just), fromMaybe)
 import Numeric.Natural
 
 -- * Types
@@ -11,12 +11,17 @@ newtype Content = Content String
 
 newtype Structure = Structure String
 
+newtype Head = Head String
+
 type Title = String
 
 -- * EDSL
 
 html_ :: Title -> Structure -> Html
 html_ title (Structure content) = Html (el "html" (el "head" (el "title" (escape title)) <> el "body" content))
+
+title_ :: Title -> Head
+title_ = Head . el "title" . escape
 
 p_ :: Content -> Structure
 p_ = Structure . el "p" . getContentString
@@ -71,6 +76,13 @@ instance Semigroup Content where
 instance Monoid Content where
   mempty = Content ""
 
+instance Semigroup Head where
+  (<>) c1 c2 =
+    Head (getHeadString c1 <> getHeadString c2)
+
+instance Monoid Head where
+  mempty = Head ""
+
 -- * Render
 
 render :: Html -> String
@@ -82,7 +94,7 @@ el :: String -> String -> String
 el tag = elAtt tag Nothing
 
 att_ :: String -> String -> String
-att_ name value = escape name <> "=" <>  "\"" <> escape value <> "\""
+att_ name value = escape name <> "=" <> "\"" <> escape value <> "\""
 
 elAtt :: String -> Maybe String -> String -> String
 elAtt tag maybeAttribute content =
@@ -92,6 +104,11 @@ getContentString :: Content -> String
 getContentString content =
   case content of
     Content str -> str
+
+getHeadString :: Head -> String
+getHeadString s =
+  case s of
+    Head str -> str
 
 getStructureString :: Structure -> String
 getStructureString content =
