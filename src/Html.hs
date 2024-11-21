@@ -1,5 +1,9 @@
 module Html
   ( Html
+  , Head
+  , title_
+  , stylesheet_
+  , meta_
   , Title
   , Structure
   , html_

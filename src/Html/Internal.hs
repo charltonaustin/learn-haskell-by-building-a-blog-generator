@@ -23,6 +23,14 @@ html_ title (Structure content) = Html (el "html" (el "head" (el "title" (escape
 title_ :: Title -> Head
 title_ = Head . el "title" . escape
 
+stylesheet_ :: FilePath -> Head
+stylesheet_ path =
+  Head $ "<link rel=\"stylesheet\" type=\"text/css\" href=\"" <> escape path <> "\">"
+
+meta_ :: String -> String -> Head
+meta_ name content =
+  Head $ "<meta name=\"" <> escape name <> "\" content=\"" <> escape content <> "\">"
+
 p_ :: Content -> Structure
 p_ = Structure . el "p" . getContentString
 
