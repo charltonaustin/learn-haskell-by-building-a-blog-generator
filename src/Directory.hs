@@ -30,6 +30,7 @@ import System.Directory
   , copyFile
   )
 import Options.Applicative (value)
+import Env (Env(..), defaultEnv)
 
 previews :: (FilePath, Markup.Document) -> Html.Structure
 previews (path, doc) =
@@ -41,11 +42,30 @@ previews (path, doc) =
     _ ->
       Html.h_ 3 (Html.link_ path (Html.txt_ path))
 
-buildIndex :: [(FilePath, Markup.Document)] -> Html.Html
-buildIndex xs =
- Html.html_
-   "Blog"
-   (Html.h_ 1 (Html.link_ "index.html" (Html.txt_ "Blog")) <> Html.h_ 2 (Html.txt_ "Posts") <> foldMap previews xs)
+buildIndex :: Env -> [(FilePath, Markup.Document)] -> Html.Html
+buildIndex env files =
+  let
+    previews =
+      map
+        ( \(file, doc) ->
+          case doc of
+            Markup.Heading 1 head : article ->
+              Html.h_ 3 (Html.link_ file (Html.txt_ head))
+                <> foldMap convertStructure (take 2 article)
+                <> Html.p_ (Html.link_ file (Html.txt_ "..."))
+            _ ->
+              Html.h_ 3 (Html.link_ file (Html.txt_ file))
+        )
+        files
+  in
+    Html.html_
+      ( Html.title_ (eBlogName env)
+        <> Html.stylesheet_ (eStylesheetPath env)
+      )
+      ( Html.h_ 1 (Html.link_ "index.html" (Html.txt_ "Blog"))
+        <> Html.h_ 2 (Html.txt_ "Posts")
+        <> mconcat previews
+      )
 
 convertDirectory :: FilePath -> FilePath -> IO ()
 convertDirectory inputDir outputDir = do
@@ -148,7 +168,7 @@ txtsToRenderedHtml :: [(FilePath, String)] -> [(FilePath, String)]
 txtsToRenderedHtml txtFiles =
   let
     txtOutputFiles = map toOutputMarkupFile txtFiles
-    index = ("index.html", buildIndex txtOutputFiles)
+    index = ("index.html", buildIndex defaultEnv txtOutputFiles)
   in
     map (fmap Html.render) (index : map convertFile txtOutputFiles)
 
@@ -157,7 +177,7 @@ toOutputMarkupFile (file, content) =
   (takeBaseName file <.> "html", Markup.parse content)
 
 convertFile :: (FilePath, Markup.Document) -> (FilePath, Html.Html)
-convertFile (file, doc) = (file, convert file doc)
+convertFile (file, doc) = (file, convert defaultEnv file doc)
 
 -- | Copy files to a directory, recording errors to stderr.
 copyFiles :: FilePath -> [FilePath] -> IO ()

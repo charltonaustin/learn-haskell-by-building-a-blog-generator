@@ -4,7 +4,7 @@ module HsBlog
     process,
   )
 where
-
+import Env
 import Convert (convert, convertStructure)
 import qualified Html
 import qualified Markup
@@ -15,8 +15,8 @@ convertSingle title input output = do
   content <- hGetContents input
   hPutStrLn output (process title content)
 
-process :: Html.Title -> String -> String
-process title = Html.render . convert title . Markup.parse
+process :: String -> String -> String
+process title = Html.render . convert defaultEnv title . Markup.parse
 
 
 

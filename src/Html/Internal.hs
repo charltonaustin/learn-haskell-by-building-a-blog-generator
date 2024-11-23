@@ -17,8 +17,14 @@ type Title = String
 
 -- * EDSL
 
-html_ :: Title -> Structure -> Html
-html_ title (Structure content) = Html (el "html" (el "head" (el "title" (escape title)) <> el "body" content))
+html_ :: Head -> Structure -> Html
+html_ (Head head) content =
+  Html
+    ( el "html"
+      ( el "head" head
+        <> el "body" (getStructureString content)
+      )
+    )
 
 title_ :: Title -> Head
 title_ = Head . el "title" . escape
@@ -106,7 +112,7 @@ att_ name value = escape name <> "=" <> "\"" <> escape value <> "\""
 
 elAtt :: String -> Maybe String -> String -> String
 elAtt tag maybeAttribute content =
-  "<" <> tag <> fromMaybe "" maybeAttribute <> ">" <> content <> "</" <> tag <> ">"
+  "<" <> tag <> " " <> fromMaybe "" maybeAttribute <> ">" <> content <> "</" <> tag <> ">"
 
 getContentString :: Content -> String
 getContentString content =
