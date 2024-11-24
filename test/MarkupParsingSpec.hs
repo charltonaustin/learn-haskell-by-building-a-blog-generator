@@ -11,3 +11,17 @@ spec = do
         (parse "")
         []
 
+    it "paragraph" $
+      shouldBe
+        (parse "hello world")
+        [Paragraph "hello world"]
+
+    it "heading 1" $
+      shouldBe
+        (parse "* Heading 1")
+        [Heading 1 "Heading 1"]
+
+    it "code" $
+      shouldBe
+        (parse "> main = putStrLn \"hello world!\"")
+        [CodeBlock ["main = putStrLn \"hello world!\""]]
