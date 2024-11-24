@@ -1,11 +1,48 @@
+{-# language QuasiQuotes #-}
 module MarkupParsingSpec where
 
 import Test.Hspec
 import HsBlog.Markup
+import Text.RawString.QQ
+
+
+example3 :: String
+example3 = [r|
+Remember that multiple lines with no separation
+are grouped together into a single paragraph
+but list items remain separate.
+
+# Item 1 of a list
+# Item 2 of the same list
+|]
+
+example3Result :: Document
+example3Result =
+  [ Paragraph "Remember that multiple lines with no separation are grouped together into a single paragraph but list items remain separate."
+  , OrderedList
+    [ "Item 1 of a list"
+    , "Item 2 of the same list"
+    ]
+  ]
 
 spec :: Spec
 spec = do
   describe "Markup parsing tests" $ do
+    simple
+    multiline
+
+multiline :: Spec
+multiline = do
+  describe "Multi-line tests" $ do
+    it "example3" $
+      shouldBe
+        (parse example3)
+        example3Result
+
+
+simple :: Spec
+simple = do
+  describe "simple" $ do
     it "empty" $
       shouldBe
         (parse "")

@@ -62,3 +62,4 @@ tests:
     - learn-haskell-by-building-a-blog-generator
     - hspec
     - hspec-discover
+    - raw-strings-qq
