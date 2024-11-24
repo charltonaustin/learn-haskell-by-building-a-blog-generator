@@ -1,11 +1,11 @@
-{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+-- app/Main.hs
 
-{-# HLINT ignore "Use lambda-case" #-}
+-- | Entry point for the hs-blog-gen program
+
 module Main where
 
-import OptParse
 import qualified HsBlog
-import qualified Directory
+import OptParse
 
 import System.Exit (exitFailure)
 import System.Directory (doesFileExist)
@@ -15,10 +15,10 @@ main :: IO ()
 main = do
   options <- parse
   case options of
-    ConvertDir input output replace ->
-      Directory.convertDirectory input output
+    ConvertDir input output env ->
+      HsBlog.convertDirectory env input output
 
-    ConvertSingle input output replace -> do
+    ConvertSingle input output -> do
       (title, inputHandle) <-
         case input of
           Stdin ->
@@ -32,7 +32,7 @@ main = do
           OutputFile file -> do
             exists <- doesFileExist file
             shouldOpenFile <-
-              if exists && not replace
+              if exists
                 then confirm
                 else pure True
             if shouldOpenFile
@@ -45,13 +45,16 @@ main = do
       hClose inputHandle
       hClose outputHandle
 
+------------------------------------------------
+-- * Utilities
+
+-- | Confirm user action
 confirm :: IO Bool
-confirm = do
-  putStrLn "Are you sure? (y/n)"
-  answer <- getLine
-  case answer of
-    "y" -> pure True
-    "n" -> pure False
-    _ -> do
-      putStrLn "Invalid response. use y or n"
-      confirm
+confirm =
+  putStrLn "Are you sure? (y/n)" *>
+    getLine >>= \answer ->
+      case answer of
+        "y" -> pure True
+        "n" -> pure False
+        _ -> putStrLn "Invalid response. use y or n" *>
+          confirm

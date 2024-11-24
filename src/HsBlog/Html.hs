@@ -1,14 +1,15 @@
-module Html
+-- src/HsBlog/Html.hs
+
+module HsBlog.Html
   ( Html
   , Head
   , title_
   , stylesheet_
   , meta_
-  , Title
   , Structure
   , html_
-  , p_
   , h_
+  , p_
   , ul_
   , ol_
   , code_
@@ -19,8 +20,7 @@ module Html
   , b_
   , i_
   , render
-  , empty_
   )
   where
 
-import Html.Internal
+import HsBlog.Html.Internal

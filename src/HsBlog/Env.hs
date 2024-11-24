@@ -1,4 +1,6 @@
-module Env where
+-- | src/HsBlog/Env.hs
+
+module HsBlog.Env where
 
 data Env
   = Env
