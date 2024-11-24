@@ -60,3 +60,5 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - learn-haskell-by-building-a-blog-generator
+    - hspec
+    - hspec-discover
